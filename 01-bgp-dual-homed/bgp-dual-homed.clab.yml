@@ -1,0 +1,43 @@
+name: bgp-dual-homed
+
+topology:
+  kinds:
+    linux:
+      image: quay.io/frrouting/frr:9.1.0
+      binds:
+        - configs/daemons:/etc/frr/daemons
+
+  nodes:
+    # --- AS 65001 : provider core ---
+    pe1:
+      kind: linux
+      binds:
+        - configs/pe1.conf:/etc/frr/frr.conf
+    pe2:
+      kind: linux
+      binds:
+        - configs/pe2.conf:/etc/frr/frr.conf
+
+    # --- AS 65100 : dual-homed customer ---
+    ce1:
+      kind: linux
+      binds:
+        - configs/ce1.conf:/etc/frr/frr.conf
+
+    # --- AS 65002 : upstream transit ---
+    transit1:
+      kind: linux
+      binds:
+        - configs/transit1.conf:/etc/frr/frr.conf
+
+  links:
+    # provider core: pe1 <-> pe2 (OSPF area 0, iBGP rides on top)
+    - endpoints: ["pe1:eth1", "pe2:eth1"]
+
+    # customer uplinks
+    - endpoints: ["ce1:eth1", "pe1:eth2"]
+    - endpoints: ["ce1:eth2", "pe2:eth2"]
+
+    # transit uplinks
+    - endpoints: ["pe1:eth3", "transit1:eth1"]
+    - endpoints: ["pe2:eth3", "transit1:eth2"]

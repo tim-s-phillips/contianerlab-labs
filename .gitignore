@@ -1,0 +1,10 @@
+# Containerlab runtime artefacts
+clab-*/
+.*.clab.yml.bak
+*.log
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
