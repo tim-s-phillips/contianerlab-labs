@@ -1,0 +1,78 @@
+name: validate
+
+# Deliberately does not deploy the labs. GitHub runners do not reliably
+# ship MPLS kernel modules, so a green tick here would not mean the MPLS
+# lab works. This checks the things it can actually prove: that every
+# file parses, and that the topologies and bootstrap scripts agree with
+# each other. Deploy verification runs locally via `make verify`.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Shell syntax
+        run: |
+          for f in $(find . -name '*.sh'); do
+            bash -n "$f" && echo "ok  $f"
+          done
+
+      - name: Python syntax
+        run: |
+          for f in $(find . -name '*.py'); do
+            python3 -m py_compile "$f" && echo "ok  $f"
+          done
+
+      - name: Topology files parse and reference declared nodes
+        run: |
+          python3 - <<'PY'
+          import glob, sys, yaml
+          fail = False
+          for path in sorted(glob.glob('*/*.clab.yml')):
+              d = yaml.safe_load(open(path))
+              nodes = d['topology']['nodes']
+              for link in d['topology']['links']:
+                  for ep in link['endpoints']:
+                      node = ep.split(':')[0]
+                      if node not in nodes:
+                          print(f"FAIL {path}: link endpoint '{ep}' has no node")
+                          fail = True
+              print(f"ok  {path} ({len(nodes)} nodes, {len(d['topology']['links'])} links)")
+          sys.exit(1 if fail else 0)
+          PY
+
+      - name: Config bind mounts exist
+        run: |
+          python3 - <<'PY'
+          import glob, os, sys, yaml
+          fail = False
+          for path in sorted(glob.glob('*/*.clab.yml')):
+              base = os.path.dirname(path)
+              d = yaml.safe_load(open(path))
+              binds = []
+              kinds = d['topology'].get('kinds', {})
+              for k in kinds.values():
+                  binds += k.get('binds', [])
+              for n in d['topology']['nodes'].values():
+                  binds += (n or {}).get('binds', [])
+              for b in binds:
+                  src = os.path.join(base, b.split(':')[0])
+                  if not os.path.exists(src):
+                      print(f"FAIL {path}: missing bind source {src}")
+                      fail = True
+              print(f"ok  {path} ({len(binds)} binds)")
+          sys.exit(1 if fail else 0)
+          PY

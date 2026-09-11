@@ -1,0 +1,50 @@
+name: mpls-l3vpn
+
+topology:
+  kinds:
+    linux:
+      image: quay.io/frrouting/frr:9.1.0
+      binds:
+        - configs/daemons:/etc/frr/daemons
+
+  nodes:
+    # --- AS 65000 : provider MPLS core ---
+    pe1:
+      kind: linux
+      binds:
+        - configs/pe1.conf:/etc/frr/frr.conf
+    p1:
+      kind: linux
+      binds:
+        - configs/p1.conf:/etc/frr/frr.conf
+    pe2:
+      kind: linux
+      binds:
+        - configs/pe2.conf:/etc/frr/frr.conf
+
+    # --- AS 65100 : customer A, two sites, VRF CUST-A ---
+    ce-a1:
+      kind: linux
+      binds:
+        - configs/ce-a1.conf:/etc/frr/frr.conf
+    ce-a2:
+      kind: linux
+      binds:
+        - configs/ce-a2.conf:/etc/frr/frr.conf
+
+    # --- AS 65200 : customer B, one site, VRF CUST-B ---
+    # Deliberately reuses customer A's addressing to prove VRF separation.
+    ce-b1:
+      kind: linux
+      binds:
+        - configs/ce-b1.conf:/etc/frr/frr.conf
+
+  links:
+    # MPLS core
+    - endpoints: ["pe1:eth1", "p1:eth1"]
+    - endpoints: ["p1:eth2", "pe2:eth1"]
+
+    # PE-CE attachment circuits
+    - endpoints: ["pe1:eth2", "ce-a1:eth1"]
+    - endpoints: ["pe1:eth3", "ce-b1:eth1"]
+    - endpoints: ["pe2:eth2", "ce-a2:eth1"]
