@@ -12,14 +12,16 @@ every day at work.
 | # | Lab | Covers |
 |---|-----|--------|
 | 01 | [Dual-homed customer BGP](01-bgp-dual-homed/) | eBGP, iBGP, `next-hop-self`, local-preference, AS-path prepending, OSPF underlay, link failover |
+| 02 | [Junos NETCONF to Grafana](02-junos-netconf-grafana/) | Junos access ports, read-only NETCONF login class, operational RPCs, XML reshaping, Grafana Infinity datasource |
 
 ## Requirements
 
 - Docker
 - [Containerlab](https://containerlab.dev/install/)
-- ~1GB RAM for the labs here (FRR containers are light; vendor images are not)
+- ~1GB RAM for the FRR labs; lab 02 wants ~5GB and a locally built vJunos image
 
-Images pull automatically on first deploy.
+FRR, Grafana and Python images pull automatically on first deploy. Vendor
+images do not — lab 02's README covers building it with vrnetlab.
 
 ## Layout
 
@@ -31,6 +33,9 @@ NN-lab-name/
     ├── daemons            # FRR daemon enablement
     └── <node>.conf        # per-node startup config
 ```
+
+Labs that carry tooling alongside the topology keep it in its own directory —
+`netconf/` and `grafana/` in lab 02 — rather than in `configs/`.
 
 ## Why this exists
 

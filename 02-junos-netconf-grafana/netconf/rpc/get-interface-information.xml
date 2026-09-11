@@ -1,0 +1,7 @@
+<!-- show interfaces ge-0/0/* extensive
+     Per-port admin/oper state, description, speed, last flap and the
+     traffic counters. -->
+<get-interface-information>
+  <interface-name>ge-0/0/*</interface-name>
+  <extensive/>
+</get-interface-information>

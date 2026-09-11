@@ -1,0 +1,3 @@
+<!-- show ethernet-switching table
+     Which MAC address the switch has learned on which access port. -->
+<get-ethernet-switching-table-information/>

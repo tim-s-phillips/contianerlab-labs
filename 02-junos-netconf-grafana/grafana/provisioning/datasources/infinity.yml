@@ -1,0 +1,15 @@
+# The Infinity datasource speaks plain HTTP and can parse XML, so it reads the
+# poller's output directly - no Prometheus, no exporter, no database.
+apiVersion: 1
+
+datasources:
+  - name: Junos NETCONF XML
+    uid: junos-netconf-xml
+    type: yesoreyeram-infinity-datasource
+    access: proxy
+    isDefault: true
+    editable: true
+    jsonData:
+      auth_method: none
+      global_queries: []
+      refData: []
