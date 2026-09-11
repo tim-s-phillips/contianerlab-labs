@@ -1,0 +1,6 @@
+<!-- show arp no-resolve
+     MAC to IP, so a port can be reported as "user1 at 10.10.10.11" rather
+     than as a bare interface name. -->
+<get-arp-table-information>
+  <no-resolve/>
+</get-arp-table-information>

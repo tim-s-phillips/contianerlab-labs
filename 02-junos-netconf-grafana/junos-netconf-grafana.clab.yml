@@ -1,0 +1,90 @@
+name: junos-netconf-grafana
+
+topology:
+  kinds:
+    juniper_vjunosswitch:
+      # Built locally with vrnetlab - see the README, this one does not pull.
+      image: vrnetlab/juniper_vjunos-switch:23.2R1.15
+    linux:
+      image: alpine:3.20
+
+  nodes:
+    # --- access switch under test ---------------------------------------
+    # eth1..eth4 land on ge-0/0/0..ge-0/0/3 inside Junos.
+    access1:
+      kind: juniper_vjunosswitch
+      startup-config: configs/access1.cfg
+
+    # --- connected users, one per access port ---------------------------
+    user1:
+      kind: linux
+      env:
+        USER_IP: 10.10.10.11
+        GATEWAY: 10.10.10.1
+      binds:
+        - configs/user-init.sh:/init.sh:ro
+      cmd: /bin/sh /init.sh
+    user2:
+      kind: linux
+      env:
+        USER_IP: 10.10.10.12
+        GATEWAY: 10.10.10.1
+      binds:
+        - configs/user-init.sh:/init.sh:ro
+      cmd: /bin/sh /init.sh
+    user3:
+      kind: linux
+      env:
+        USER_IP: 10.10.10.13
+        GATEWAY: 10.10.10.1
+      binds:
+        - configs/user-init.sh:/init.sh:ro
+      cmd: /bin/sh /init.sh
+    user4:
+      kind: linux
+      env:
+        USER_IP: 10.10.10.14
+        GATEWAY: 10.10.10.1
+      binds:
+        - configs/user-init.sh:/init.sh:ro
+      cmd: /bin/sh /init.sh
+
+    # --- NETCONF poller: read-only account in, XML over HTTP out --------
+    poller:
+      kind: linux
+      image: python:3.12-slim
+      ports:
+        - 8080:8080
+      binds:
+        - netconf:/opt/netconf:ro
+      env:
+        JUNOS_HOST: clab-junos-netconf-grafana-access1
+        JUNOS_PORT: "830"
+        JUNOS_USER: telemetry
+        JUNOS_PASSWORD: Telemetry.123
+        ACCESS_PORTS: ge-0/0/0,ge-0/0/1,ge-0/0/2,ge-0/0/3
+        POLL_INTERVAL: "15"
+        HTTP_PORT: "8080"
+      cmd: >-
+        /bin/sh -c "pip install --no-cache-dir --root-user-action=ignore --quiet
+        ncclient==0.6.15 && exec python -u /opt/netconf/poll.py"
+
+    # --- Grafana with the Infinity datasource ---------------------------
+    grafana:
+      kind: linux
+      image: grafana/grafana:11.6.0
+      ports:
+        - 3000:3000
+      binds:
+        - grafana/provisioning:/etc/grafana/provisioning:ro
+      env:
+        GF_INSTALL_PLUGINS: yesoreyeram-infinity-datasource
+        GF_AUTH_ANONYMOUS_ENABLED: "true"
+        GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+        GF_USERS_DEFAULT_THEME: dark
+
+  links:
+    - endpoints: ["user1:eth1", "access1:eth1"] # ge-0/0/0
+    - endpoints: ["user2:eth1", "access1:eth2"] # ge-0/0/1
+    - endpoints: ["user3:eth1", "access1:eth3"] # ge-0/0/2
+    - endpoints: ["user4:eth1", "access1:eth4"] # ge-0/0/3

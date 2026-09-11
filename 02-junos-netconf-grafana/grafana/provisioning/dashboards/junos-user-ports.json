@@ -1,0 +1,637 @@
+{
+  "uid": "junos-user-ports",
+  "title": "Junos user ports (NETCONF)",
+  "description": "Access-port state polled from access1 over NETCONF by the read-only 'telemetry' account, published as XML and parsed by the Infinity datasource.",
+  "tags": [
+    "junos",
+    "netconf",
+    "containerlab"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "15s",
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Ports up",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "junos-netconf-xml"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "junos-netconf-xml"
+          },
+          "type": "xml",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "http://clab-junos-netconf-grafana-poller:8080/users.xml",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          },
+          "root_selector": "poll.user",
+          "columns": [
+            {
+              "selector": "port",
+              "text": "Port",
+              "type": "string"
+            },
+            {
+              "selector": "up",
+              "text": "Up",
+              "type": "number"
+            }
+          ],
+          "filters": [],
+          "global_query_id": ""
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "/^Up$/",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "green",
+                "value": 4
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Users online",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "junos-netconf-xml"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "junos-netconf-xml"
+          },
+          "type": "xml",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "http://clab-junos-netconf-grafana-poller:8080/users.xml",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          },
+          "root_selector": "poll.user",
+          "columns": [
+            {
+              "selector": "port",
+              "text": "Port",
+              "type": "string"
+            },
+            {
+              "selector": "online",
+              "text": "Online",
+              "type": "number"
+            }
+          ],
+          "filters": [],
+          "global_query_id": ""
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "/^Online$/",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "green",
+                "value": 4
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "table",
+      "title": "Poll status",
+      "description": "Written by the poller each cycle. status=error means the NETCONF poll failed - the reason is in the error column.",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "junos-netconf-xml"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 16,
+        "x": 8,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "junos-netconf-xml"
+          },
+          "type": "xml",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "http://clab-junos-netconf-grafana-poller:8080/users.xml",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          },
+          "root_selector": "poll",
+          "columns": [
+            {
+              "selector": "device",
+              "text": "Device",
+              "type": "string"
+            },
+            {
+              "selector": "timestamp",
+              "text": "Polled at",
+              "type": "string"
+            },
+            {
+              "selector": "status",
+              "text": "Status",
+              "type": "string"
+            },
+            {
+              "selector": "error",
+              "text": "Error",
+              "type": "string"
+            },
+            {
+              "selector": "ports",
+              "text": "Ports",
+              "type": "number"
+            },
+            {
+              "selector": "portsup",
+              "text": "Ports up",
+              "type": "number"
+            }
+          ],
+          "filters": [],
+          "global_query_id": ""
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "ok": {
+                        "color": "green",
+                        "index": 0
+                      },
+                      "error": {
+                        "color": "red",
+                        "index": 1
+                      },
+                      "starting": {
+                        "color": "orange",
+                        "index": 2
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "title": "Connected users",
+      "description": "One row per access port: interface state from get-interface-information, MAC from get-ethernet-switching-table-information, IP joined via get-arp-table-information.",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "junos-netconf-xml"
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "junos-netconf-xml"
+          },
+          "type": "xml",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "http://clab-junos-netconf-grafana-poller:8080/users.xml",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          },
+          "root_selector": "poll.user",
+          "columns": [
+            {
+              "selector": "port",
+              "text": "Port",
+              "type": "string"
+            },
+            {
+              "selector": "name",
+              "text": "User",
+              "type": "string"
+            },
+            {
+              "selector": "admin",
+              "text": "Admin",
+              "type": "string"
+            },
+            {
+              "selector": "oper",
+              "text": "Oper",
+              "type": "string"
+            },
+            {
+              "selector": "up",
+              "text": "Up",
+              "type": "number"
+            },
+            {
+              "selector": "online",
+              "text": "Online",
+              "type": "number"
+            },
+            {
+              "selector": "mac",
+              "text": "MAC",
+              "type": "string"
+            },
+            {
+              "selector": "ip",
+              "text": "IP",
+              "type": "string"
+            },
+            {
+              "selector": "vlan",
+              "text": "VLAN",
+              "type": "string"
+            },
+            {
+              "selector": "speed",
+              "text": "Speed",
+              "type": "string"
+            },
+            {
+              "selector": "lastflap",
+              "text": "Last flap",
+              "type": "string"
+            },
+            {
+              "selector": "flapsecs",
+              "text": "Flap age (s)",
+              "type": "number"
+            },
+            {
+              "selector": "rxpkts",
+              "text": "Rx pkts",
+              "type": "number"
+            },
+            {
+              "selector": "txpkts",
+              "text": "Tx pkts",
+              "type": "number"
+            },
+            {
+              "selector": "rxerrors",
+              "text": "Rx errors",
+              "type": "number"
+            },
+            {
+              "selector": "txerrors",
+              "text": "Tx errors",
+              "type": "number"
+            }
+          ],
+          "filters": [],
+          "global_query_id": ""
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Port",
+            "desc": false
+          }
+        ]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Admin"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "up": {
+                        "color": "green",
+                        "index": 0,
+                        "text": "up"
+                      },
+                      "down": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "down"
+                      },
+                      "unknown": {
+                        "color": "text",
+                        "index": 2,
+                        "text": "unknown"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Oper"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "up": {
+                        "color": "green",
+                        "index": 0,
+                        "text": "up"
+                      },
+                      "down": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "down"
+                      },
+                      "unknown": {
+                        "color": "text",
+                        "index": 2,
+                        "text": "unknown"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Up"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "DOWN"
+                      },
+                      "1": {
+                        "color": "green",
+                        "index": 1,
+                        "text": "UP"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Online"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "no MAC"
+                      },
+                      "1": {
+                        "color": "green",
+                        "index": 1,
+                        "text": "learned"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*errors"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "text",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
